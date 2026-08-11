@@ -3,43 +3,73 @@
 @tailwind utilities;
 
 @layer base {
-  :root{
-     --radius: 0.5rem;
-     --background: 222.2 84% 4.9%;
+  :root {
+    /* Electronics Lab Theme - Dark Navy/Blue/Purple/Teal */
+    --radius: 0.5rem;
+    
+    /* Background & Foreground */
+    --background: 215 35% 8%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    /* Card colors */
+    --card: 215 30% 12%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    /* Popover */
+    --popover: 215 30% 12%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    /* Primary - Cyan/Bright Blue */
+    --primary: 190 100% 50%;
+    --primary-foreground: 215 35% 8%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    /* Secondary - Purple/Violet */
+    --secondary: 270 70% 50%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    /* Muted */
+    --muted: 215 20% 35%;
+    --muted-foreground: 210 20% 70%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    /* Accent - Teal/Cyan */
+    --accent: 180 100% 45%;
+    --accent-foreground: 215 35% 8%;
 
-    --destructive: 0 62.8% 30.6%;
+    /* Destructive - Red */
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Border & Input */
+    --border: 215 25% 25%;
+    --input: 215 25% 18%;
+    --ring: 190 100% 50%;
+    
+    /* Sidebar */
+    --sidebar-background: 215 35% 8%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 190 100% 50%;
+    --sidebar-primary-foreground: 215 35% 8%;
+    --sidebar-accent: 180 100% 45%;
+    --sidebar-accent-foreground: 215 35% 8%;
+    --sidebar-border: 215 25% 25%;
+    --sidebar-ring: 190 100% 50%;
+    
+    /* Lab-specific tokens */
+    --lab-dark: 215 35% 8%;
+    --lab-darker: 215 40% 5%;
+    --lab-light: 215 30% 15%;
+    --lab-cyan: 190 100% 50%;
+    --lab-purple: 270 70% 50%;
+    --lab-teal: 180 100% 45%;
+    --lab-gold: 40 100% 50%;
+    --lab-success: 120 100% 40%;
+    --lab-warning: 40 100% 50%;
+    --lab-danger: 0 84% 60%;
+    
+    /* Glow effects */
+    --glow-cyan: 0 0 20px rgba(0, 255, 200, 0.3);
+    --glow-purple: 0 0 20px rgba(186, 85, 211, 0.3);
+    --glow-gold: 0 0 15px rgba(255, 215, 0, 0.2);
   }
   .light {
     --background: 0 0% 100%;
