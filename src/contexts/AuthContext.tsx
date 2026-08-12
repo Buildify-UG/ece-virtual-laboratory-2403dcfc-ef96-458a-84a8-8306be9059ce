@@ -1,9 +1,17 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
-import { User, Session } from '@supabase/supabase-js';
+import { supabase, auth, userProfiles } from '@/lib/supabase';
+import { User } from '@supabase/supabase-js';
+
+interface UserProfile {
+  id: string;
+  username: string;
+  full_name?: string;
+  avatar_url?: string;
+  role: string;
+}
 
 interface AuthContextType {
-  user: any | null;
+  user: User | null;
   profile: UserProfile | null;
   loading: boolean;
   signUp: (email: string, password: string, username: string, fullName?: string) => Promise<void>;
@@ -14,23 +22,23 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Check current session
-    auth.getSession().then(({ data }) => {
-      if (data?.user) {
-        setUser(data.user);
-        loadProfile(data.user.id);
+    supabase.auth.getSession().then(({ data }) => {
+      if (data?.session?.user) {
+        setUser(data.session.user);
+        loadProfile(data.session.user.id);
       } else {
         setLoading(false);
       }
     });
 
     // Listen for auth changes
-    const { data: subscription } = auth.onAuthStateChange(async (event, session) => {
+    const { data: subscription } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         setUser(session.user);
         await loadProfile(session.user.id);
@@ -97,6 +105,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 }
 
 export function useAuth() {
