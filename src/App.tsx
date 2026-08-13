@@ -10,7 +10,9 @@ import AuthPage from "./pages/AuthPage";
 import Dashboard from "./pages/Dashboard";
 import LabWorkspace from "./pages/LabWorkspace";
 import ComponentLibrary from "./pages/ComponentLibrary";
+import AdminPanel from "./pages/AdminPanel";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,7 @@ const App = () => (
             <Route path="/lab" element={<ProtectedRoute><LabWorkspace /></ProtectedRoute>} />
             <Route path="/lab/:projectId" element={<ProtectedRoute><LabWorkspace /></ProtectedRoute>} />
             <Route path="/components" element={<ComponentLibrary />} />
+            <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
