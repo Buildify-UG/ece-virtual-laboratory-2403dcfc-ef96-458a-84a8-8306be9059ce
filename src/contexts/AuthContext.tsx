@@ -2,6 +2,35 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase, auth, userProfiles } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
 
+// Helper function to convert auth errors to user-friendly messages
+function getAuthErrorMessage(error: any): string {
+  if (!error) return 'Unknown error occurred';
+  
+  const message = error.message || '';
+  const code = error.code || '';
+
+  if (message.includes('Invalid login credentials')) {
+    return 'Invalid email or password. Please check and try again.';
+  }
+  if (message.includes('User already registered')) {
+    return 'This email is already registered. Please sign in instead.';
+  }
+  if (message.includes('Password')) {
+    return 'Password must be at least 6 characters.';
+  }
+  if (message.includes('Email')) {
+    return 'Please enter a valid email address.';
+  }
+  if (message.includes('network') || code === 'ERR_NETWORK') {
+    return 'Network error. Please check your connection and try again.';
+  }
+  if (message.includes('database') || code === 'PGRST') {
+    return 'Database error. Please try again later.';
+  }
+  
+  return message || 'Authentication failed. Please try again.';
+}
+
 interface UserProfile {
   id: string;
   username: string;
@@ -91,48 +120,107 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadProfile = async (userId: string) => {
     try {
       const { data, error } = await userProfiles.getProfile(userId);
-      if (error) {
+      
+      if (error && error.code !== 'PGRST116') {
+        // Only log non-404 errors
+        console.error('Profile fetch error:', error);
+        setError(`Failed to load profile: ${error.message}`);
+        setLoading(false);
+        return;
+      }
+
+      if (!data) {
         // Profile doesn't exist, create it
-        const { data: newProfile } = await userProfiles.createProfile(
+        const generatedUsername = `user_${userId.slice(0, 8)}`;
+        const { data: newProfile, error: createError } = await userProfiles.createProfile(
           userId,
-          `user_${userId.slice(0, 8)}`,
+          generatedUsername,
           undefined
         );
+        
+        if (createError) {
+          console.error('Profile creation error:', createError);
+          setError(`Failed to create profile: ${createError.message}`);
+          setLoading(false);
+          return;
+        }
+
         setProfile(newProfile);
       } else {
         setProfile(data);
       }
-    } catch (error) {
-      console.error('Error loading profile:', error);
+    } catch (err) {
+      console.error('Error loading profile:', err);
+      setError(`Profile error: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
   };
 
   const signUp = async (email: string, password: string, username: string, fullName?: string) => {
-    const { data, error } = await auth.signUp(email, password, username, fullName);
-    if (error) throw error;
-    if (data.user) {
-      setUser(data.user);
-      await loadProfile(data.user.id);
+    try {
+      setError(null);
+      const { data, error } = await auth.signUp(email, password, username, fullName);
+      
+      if (error) {
+        const errorMsg = getAuthErrorMessage(error);
+        setError(errorMsg);
+        throw new Error(errorMsg);
+      }
+
+      if (data.user) {
+        setUser(data.user);
+        await loadProfile(data.user.id);
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Signup failed';
+      setError(errorMsg);
+      throw err;
     }
   };
 
   const signIn = async (email: string, password: string) => {
-    const { data, error } = await auth.signIn(email, password);
-    if (error) throw error;
-    if (data.user) {
-      setUser(data.user);
-      await loadProfile(data.user.id);
+    try {
+      setError(null);
+      const { data, error } = await auth.signIn(email, password);
+      
+      if (error) {
+        const errorMsg = getAuthErrorMessage(error);
+        setError(errorMsg);
+        throw new Error(errorMsg);
+      }
+
+      if (data.user) {
+        setUser(data.user);
+        await loadProfile(data.user.id);
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Login failed';
+      setError(errorMsg);
+      throw err;
     }
   };
 
   const signOut = async () => {
-    const { error } = await auth.signOut();
-    if (error) throw error;
-    setUser(null);
-    setProfile(null);
+    try {
+      setError(null);
+      const { error } = await auth.signOut();
+      
+      if (error) {
+        setError(`Logout failed: ${error.message}`);
+        throw error;
+      }
+
+      setUser(null);
+      setProfile(null);
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Logout failed';
+      setError(errorMsg);
+      throw err;
+    }
   };
+
+  const clearError = () => setError(null);
 
   return (
     <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut }}>
